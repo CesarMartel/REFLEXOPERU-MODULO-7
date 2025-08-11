@@ -4,52 +4,152 @@
 
 {% block content %}
 <div class="main-container">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4">
-                <i class="fas fa-city text-warning me-2"></i>
-                Provincias
-            </h2>
-        </div>
-    </div>
+    <h2 class="mb-4">
+        <i class="fas fa-map-marker-alt text-info me-2"></i>
+        Provincias
+    </h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código Ubigeo</th>
+                <th>Nombre</th>
+                <th>Región</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for province in provinces %}
+            <tr>
+                <td>{{ province.id }}</td>
+                <td>{{ province.ubigeo_code }}</td>
+                <td>{{ province.name }}</td>
+                <td>{{ province.region.name }}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editProvince({{ province.id }}, '{{ province.name|escapejs }}', '{{ province.ubigeo_code|default_if_none:''|escapejs }}', {{ province.region.id }})">Editar</button>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="deleteProvince({{ province.id }})">Eliminar</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No hay provincias registradas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="data-table">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Región</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for province in provinces %}
-                                <tr>
-                                    <td>{{ province.id }}</td>
-                                    <td><strong>{{ province.name }}</strong></td>
-                                    <td>
-                                        <span class="badge bg-info">{{ province.region.name }}</span>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">
-                                        No hay provincias registradas
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- Formulario para crear provincia -->
+    <form id="province-form" class="row g-2 mt-4">
+        <div class="col-md-4">
+            <input type="text" name="name" class="form-control" placeholder="Nombre de la provincia" required>
         </div>
-    </div>
+        <div class="col-md-4">
+            <input type="text" name="ubigeo_code" class="form-control" placeholder="Código ubigeo" required>
+        </div>
+        <div class="col-md-4">
+            <select name="region_id" class="form-control" required>
+                <option value="">Seleccione región</option>
+                {% for region in regions %}
+                <option value="{{ region.id }}">{{ region.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-12 mt-2">
+            <button type="submit" class="btn btn-success w-100">Crear Provincia</button>
+        </div>
+    </form>
 </div>
+
+<!-- Modal para editar provincia -->
+<div id="edit-province-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
+  <h4>Editar Provincia</h4>
+  <form id="edit-province-form">
+    <input type="hidden" name="id" id="edit-province-id">
+    <div class="mb-2">
+      <input type="text" name="name" id="edit-province-name" class="form-control" placeholder="Nombre de la provincia" required>
+    </div>
+    <div class="mb-2">
+      <input type="text" name="ubigeo_code" id="edit-province-code" class="form-control" placeholder="Código ubigeo" required>
+    </div>
+    <div class="mb-2">
+      <select name="region_id" id="edit-province-region" class="form-control" required>
+        <option value="">Seleccione región</option>
+        {% for region in regions %}
+        <option value="{{ region.id }}">{{ region.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <button type="button" class="btn btn-secondary" onclick="closeEditProvinceModal()">Cancelar</button>
+  </form>
+</div>
+
+<script>
+document.getElementById('province-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  fetch('/api/v3/provinces/create/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: e.target.name.value,
+      ubigeo_code: e.target.ubigeo_code.value,
+      region_id: e.target.region_id.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Provincia creada' : data.error);
+    if(data.success) location.reload();
+  });
+});
+
+function editProvince(id, name, code, region_id) {
+  document.getElementById('edit-province-id').value = id;
+  document.getElementById('edit-province-name').value = name;
+  document.getElementById('edit-province-code').value = code;
+  document.getElementById('edit-province-region').value = region_id;
+  document.getElementById('edit-province-modal').style.display = 'block';
+}
+
+function closeEditProvinceModal() {
+  document.getElementById('edit-province-modal').style.display = 'none';
+}
+
+document.getElementById('edit-province-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('edit-province-id').value;
+  fetch(`/api/v3/provinces/${id}/update/`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: document.getElementById('edit-province-name').value,
+      ubigeo_code: document.getElementById('edit-province-code').value,
+      region_id: document.getElementById('edit-province-region').value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Provincia actualizada' : data.error);
+    closeEditProvinceModal();
+    if(data.success) location.reload();
+  });
+});
+
+function deleteProvince(id) {
+  if (!confirm('¿Seguro que deseas eliminar esta provincia?')) return;
+  fetch(`/api/v3/provinces/${id}/delete/`, {
+    method: 'DELETE'
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Provincia eliminada' : data.error);
+    if(data.success) location.reload();
+  });
+}
+</script>
 {% endblock %}
 
 

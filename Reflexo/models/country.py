@@ -1,15 +1,18 @@
 from django.db import models
 
 class Country(models.Model):
-    name = models.CharField(max_length=255)
-    phone_code = models.CharField(max_length=10)
-    ISO2 = models.CharField(max_length=2)
+    name = models.CharField(max_length=100)
+    ubigeo_code = models.CharField(max_length=10, unique=True)  # <-- Agrega este campo
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
         app_label = 'Reflexo'
+        verbose_name = "País"
+        verbose_name_plural = "Países"
 
 
 class CountryUser(models.Model):

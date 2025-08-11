@@ -13,6 +13,17 @@
         </div>
     </div>
 
+    <!-- Información de depuración -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>Información de depuración:</strong>
+                <br>Total de regiones: {{ regions.count }}
+                <br>Regiones con datos: {% if regions %}Sí{% else %}No{% endif %}
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -22,14 +33,24 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Código Ubigeo</th>
                                     <th>Nombre</th>
                                     <th>Estado</th>
+                                    <th>Editar</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for region in regions %}
                                 <tr>
                                     <td>{{ region.id }}</td>
+                                    <td>
+                                        {% if region.ubigeo_code %}
+                                            <span class="badge bg-primary">{{ region.ubigeo_code }}</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Sin código</span>
+                                        {% endif %}
+                                    </td>
                                     <td><strong>{{ region.name }}</strong></td>
                                     <td>
                                         {% if region.deleted_at %}
@@ -38,11 +59,28 @@
                                             <span class="badge bg-success">Activo</span>
                                         {% endif %}
                                     </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning" onclick="editRegion({{ region.id }}, '{{ region.name|escapejs }}', '{{ region.ubigeo_code|default_if_none:''|escapejs }}')">Editar</button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteRegion({{ region.id }})">Eliminar</button>
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="3" class="text-center text-muted">
-                                        No hay regiones registradas
+                                    <td colspan="6" class="text-center text-muted">
+                                        <div class="py-4">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                                            <br>
+                                            <strong>No hay regiones registradas</strong>
+                                            <br>
+                                            <small>Esto puede deberse a que:</small>
+                                            <ul class="list-unstyled mt-2">
+                                                <li>• No se han cargado los datos desde los archivos CSV</li>
+                                                <li>• Los nuevos campos de ubigeo no han sido migrados</li>
+                                                <li>• Hay un problema con la base de datos</li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -53,9 +91,110 @@
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
 
+    <!-- Formulario para crear región -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form id="region-form" class="row g-2">
+                        <div class="col-md-5">
+                            <input type="text" name="name" class="form-control" placeholder="Nombre de la región" required>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" name="ubigeo_code" class="form-control" placeholder="Código ubigeo" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">Crear Región</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar región -->
+<div id="edit-region-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
+  <h4>Editar Región</h4>
+  <form id="edit-region-form">
+    <input type="hidden" name="id" id="edit-region-id">
+    <div class="mb-2">
+      <input type="text" name="name" id="edit-region-name" class="form-control" placeholder="Nombre de la región" required>
+    </div>
+    <div class="mb-2">
+      <input type="text" name="ubigeo_code" id="edit-region-code" class="form-control" placeholder="Código ubigeo" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+  </form>
+</div>
+
+<script>
+document.getElementById('region-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  fetch('/api/v3/regions/create/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: e.target.name.value,
+      ubigeo_code: e.target.ubigeo_code.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Región creada' : data.error);
+    if(data.success) location.reload();
+  });
+});
+
+// Mostrar modal de edición
+function editRegion(id, name, code) {
+  document.getElementById('edit-region-id').value = id;
+  document.getElementById('edit-region-name').value = name;
+  document.getElementById('edit-region-code').value = code;
+  document.getElementById('edit-region-modal').style.display = 'block';
+}
+
+// Cerrar modal de edición
+function closeEditModal() {
+  document.getElementById('edit-region-modal').style.display = 'none';
+}
+
+// Enviar edición
+document.getElementById('edit-region-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('edit-region-id').value;
+  fetch(`/api/v3/regions/${id}/update/`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: document.getElementById('edit-region-name').value,
+      ubigeo_code: document.getElementById('edit-region-code').value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Región actualizada' : data.error);
+    closeEditModal();
+    if(data.success) location.reload();
+  });
+});
+
+// Eliminar región
+function deleteRegion(id) {
+  if (!confirm('¿Seguro que deseas eliminar esta región?')) return;
+  fetch(`/api/v3/regions/${id}/delete/`, {
+    method: 'DELETE'
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Región eliminada' : data.error);
+    if(data.success) location.reload();
+  });
+}
+</script>
+{% endblock %}
 
 
 

@@ -4,56 +4,152 @@
 
 {% block content %}
 <div class="main-container">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4">
-                <i class="fas fa-building text-info me-2"></i>
-                Distritos
-            </h2>
-        </div>
-    </div>
+    <h2 class="mb-4">
+        <i class="fas fa-map-pin text-secondary me-2"></i>
+        Distritos
+    </h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código Ubigeo</th>
+                <th>Nombre</th>
+                <th>Provincia</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for district in districts %}
+            <tr>
+                <td>{{ district.id }}</td>
+                <td>{{ district.ubigeo_code }}</td>
+                <td>{{ district.name }}</td>
+                <td>{{ district.province.name }}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editDistrict({{ district.id }}, '{{ district.name|escapejs }}', '{{ district.ubigeo_code|default_if_none:''|escapejs }}', {{ district.province.id }})">Editar</button>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="deleteDistrict({{ district.id }})">Eliminar</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No hay distritos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="data-table">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Provincia</th>
-                                    <th>Región</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for district in districts %}
-                                <tr>
-                                    <td>{{ district.id }}</td>
-                                    <td><strong>{{ district.name }}</strong></td>
-                                    <td>
-                                        <span class="badge bg-warning">{{ district.province.name }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">{{ district.province.region.name }}</span>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">
-                                        No hay distritos registrados
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- Formulario para crear distrito -->
+    <form id="district-form" class="row g-2 mt-4">
+        <div class="col-md-4">
+            <input type="text" name="name" class="form-control" placeholder="Nombre del distrito" required>
         </div>
-    </div>
+        <div class="col-md-4">
+            <input type="text" name="ubigeo_code" class="form-control" placeholder="Código ubigeo" required>
+        </div>
+        <div class="col-md-4">
+            <select name="province_id" class="form-control" required>
+                <option value="">Seleccione provincia</option>
+                {% for province in provinces %}
+                <option value="{{ province.id }}">{{ province.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-12 mt-2">
+            <button type="submit" class="btn btn-success w-100">Crear Distrito</button>
+        </div>
+    </form>
 </div>
+
+<!-- Modal para editar distrito -->
+<div id="edit-district-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
+  <h4>Editar Distrito</h4>
+  <form id="edit-district-form">
+    <input type="hidden" name="id" id="edit-district-id">
+    <div class="mb-2">
+      <input type="text" name="name" id="edit-district-name" class="form-control" placeholder="Nombre del distrito" required>
+    </div>
+    <div class="mb-2">
+      <input type="text" name="ubigeo_code" id="edit-district-code" class="form-control" placeholder="Código ubigeo" required>
+    </div>
+    <div class="mb-2">
+      <select name="province_id" id="edit-district-province" class="form-control" required>
+        <option value="">Seleccione provincia</option>
+        {% for province in provinces %}
+        <option value="{{ province.id }}">{{ province.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <button type="button" class="btn btn-secondary" onclick="closeEditDistrictModal()">Cancelar</button>
+  </form>
+</div>
+
+<script>
+document.getElementById('district-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  fetch('/api/v3/districts/create/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: e.target.name.value,
+      ubigeo_code: e.target.ubigeo_code.value,
+      province_id: e.target.province_id.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Distrito creado' : data.error);
+    if(data.success) location.reload();
+  });
+});
+
+function editDistrict(id, name, code, province_id) {
+  document.getElementById('edit-district-id').value = id;
+  document.getElementById('edit-district-name').value = name;
+  document.getElementById('edit-district-code').value = code;
+  document.getElementById('edit-district-province').value = province_id;
+  document.getElementById('edit-district-modal').style.display = 'block';
+}
+
+function closeEditDistrictModal() {
+  document.getElementById('edit-district-modal').style.display = 'none';
+}
+
+document.getElementById('edit-district-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('edit-district-id').value;
+  fetch(`/api/v3/districts/${id}/update/`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: document.getElementById('edit-district-name').value,
+      ubigeo_code: document.getElementById('edit-district-code').value,
+      province_id: document.getElementById('edit-district-province').value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Distrito actualizado' : data.error);
+    closeEditDistrictModal();
+    if(data.success) location.reload();
+  });
+});
+
+function deleteDistrict(id) {
+  if (!confirm('¿Seguro que deseas eliminar este distrito?')) return;
+  fetch(`/api/v3/districts/${id}/delete/`, {
+    method: 'DELETE'
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'Distrito eliminado' : data.error);
+    if(data.success) location.reload();
+  });
+}
+</script>
 {% endblock %}
 
 

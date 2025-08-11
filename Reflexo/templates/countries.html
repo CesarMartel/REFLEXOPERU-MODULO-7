@@ -4,257 +4,137 @@
 
 {% block content %}
 <div class="main-container">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">
-                    <i class="fas fa-flag text-primary me-2"></i>
-                    Países
-                </h2>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCountryModal">
-                    <i class="fas fa-plus me-2"></i>Agregar País
-                </button>
-            </div>
-        </div>
-    </div>
+    <h2 class="mb-4">
+        <i class="fas fa-globe text-primary me-2"></i>
+        Países
+    </h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código Ubigeo</th>
+                <th>Nombre</th>
+                <th>Última modificación</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for country in countries %}
+            <tr>
+                <td>{{ country.id }}</td>
+                <td>{{ country.ubigeo_code }}</td>
+                <td>{{ country.name }}</td>
+                <td>
+                  {% if country.updated_at %}
+                    {{ country.updated_at|date:"d/m/Y H:i" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editCountry({{ country.id }}, '{{ country.name|escapejs }}', '{{ country.ubigeo_code|default_if_none:''|escapejs }}')">Editar</button>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCountry({{ country.id }})">Eliminar</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No hay países registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <!-- Filtros y búsqueda -->
-    <div class="row mb-4">
+    <!-- Formulario para crear país -->
+    <form id="country-form" class="row g-2 mt-4">
         <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text">
-                    <i class="fas fa-search"></i>
-                </span>
-                <input type="text" class="form-control" id="searchInput" placeholder="Buscar países...">
-            </div>
+            <input type="text" name="name" class="form-control" placeholder="Nombre del país" required>
         </div>
         <div class="col-md-6">
-            <div class="d-flex gap-2">
-                <select class="form-select" id="sortSelect">
-                    <option value="name">Ordenar por nombre</option>
-                    <option value="phone_code">Ordenar por código telefónico</option>
-                    <option value="ISO2">Ordenar por código ISO</option>
-                </select>
-                <button class="btn btn-outline-secondary" id="refreshBtn">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
+            <input type="text" name="ubigeo_code" class="form-control" placeholder="Código ubigeo" required>
         </div>
-    </div>
-
-    <!-- Tabla de países -->
-    <div class="card">
-        <div class="card-body p-0">
-            <div class="data-table">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Código Telefónico</th>
-                            <th>Código ISO</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="countriesTableBody">
-                        <!-- Los datos se cargarán dinámicamente -->
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-md-12 mt-2">
+            <button type="submit" class="btn btn-success w-100">Crear País</button>
         </div>
-    </div>
-
-    <!-- Loading spinner -->
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <p class="mt-3">Cargando países...</p>
-    </div>
-
-    <!-- Mensaje cuando no hay datos -->
-    <div class="text-center py-5" id="noData" style="display: none;">
-        <i class="fas fa-flag fa-3x text-muted mb-3"></i>
-        <h5 class="text-muted">No hay países registrados</h5>
-        <p class="text-muted">Agrega el primer país usando el botón "Agregar País"</p>
-    </div>
+    </form>
 </div>
 
-<!-- Modal para agregar país -->
-<div class="modal fade" id="addCountryModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-plus me-2"></i>Agregar País
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="addCountryForm">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="countryName" class="form-label">Nombre del País</label>
-                        <input type="text" class="form-control" id="countryName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="phoneCode" class="form-label">Código Telefónico</label>
-                        <input type="text" class="form-control" id="phoneCode" placeholder="+51" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="isoCode" class="form-label">Código ISO</label>
-                        <input type="text" class="form-control" id="isoCode" placeholder="PE" maxlength="2" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
+<!-- Modal para editar país -->
+<div id="edit-country-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
+  <h4>Editar País</h4>
+  <form id="edit-country-form">
+    <input type="hidden" name="id" id="edit-country-id">
+    <div class="mb-2">
+      <input type="text" name="name" id="edit-country-name" class="form-control" placeholder="Nombre del país" required>
     </div>
+    <div class="mb-2">
+      <input type="text" name="ubigeo_code" id="edit-country-code" class="form-control" placeholder="Código ubigeo" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <button type="button" class="btn btn-secondary" onclick="closeEditCountryModal()">Cancelar</button>
+  </form>
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
-$(document).ready(function() {
-    let countries = [];
-    
-    // Cargar países al inicio
-    loadCountries();
-    
-    // Búsqueda en tiempo real
-    $('#searchInput').on('input', function() {
-        filterCountries();
-    });
-    
-    // Ordenamiento
-    $('#sortSelect').on('change', function() {
-        sortCountries();
-    });
-    
-    // Refrescar datos
-    $('#refreshBtn').on('click', function() {
-        loadCountries();
-    });
-    
-    // Formulario para agregar país
-    $('#addCountryForm').on('submit', function(e) {
-        e.preventDefault();
-        addCountry();
-    });
-    
-    function loadCountries() {
-        $('#loading').show();
-        $('#countriesTableBody').empty();
-        
-        $.get('/api/countries/', function(data) {
-            countries = data;
-            displayCountries(countries);
-            $('#loading').hide();
-        }).fail(function() {
-            $('#loading').hide();
-            showError('Error al cargar los países');
-        });
-    }
-    
-    function displayCountries(countriesToShow) {
-        const tbody = $('#countriesTableBody');
-        tbody.empty();
-        
-        if (countriesToShow.length === 0) {
-            $('#noData').show();
-            return;
-        }
-        
-        $('#noData').hide();
-        
-        countriesToShow.forEach(country => {
-            const row = `
-                <tr>
-                    <td>${country.id}</td>
-                    <td><strong>${country.name}</strong></td>
-                    <td><span class="badge bg-info">${country.phone_code}</span></td>
-                    <td><span class="badge bg-secondary">${country.ISO2}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editCountry(${country.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCountry(${country.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-            tbody.append(row);
-        });
-    }
-    
-    function filterCountries() {
-        const searchTerm = $('#searchInput').val().toLowerCase();
-        const filtered = countries.filter(country => 
-            country.name.toLowerCase().includes(searchTerm) ||
-            country.phone_code.toLowerCase().includes(searchTerm) ||
-            country.ISO2.toLowerCase().includes(searchTerm)
-        );
-        displayCountries(filtered);
-    }
-    
-    function sortCountries() {
-        const sortBy = $('#sortSelect').val();
-        const sorted = [...countries].sort((a, b) => {
-            if (sortBy === 'name') return a.name.localeCompare(b.name);
-            if (sortBy === 'phone_code') return a.phone_code.localeCompare(b.phone_code);
-            if (sortBy === 'ISO2') return a.ISO2.localeCompare(b.ISO2);
-            return 0;
-        });
-        displayCountries(sorted);
-    }
-    
-    function addCountry() {
-        const name = $('#countryName').val();
-        const phoneCode = $('#phoneCode').val();
-        const isoCode = $('#isoCode').val();
-        
-        // Aquí normalmente harías una llamada AJAX para guardar
-        // Por ahora solo simulamos
-        const newCountry = {
-            id: Date.now(),
-            name: name,
-            phone_code: phoneCode,
-            ISO2: isoCode.toUpperCase()
-        };
-        
-        countries.push(newCountry);
-        displayCountries(countries);
-        
-        // Limpiar formulario y cerrar modal
-        $('#addCountryForm')[0].reset();
-        $('#addCountryModal').modal('hide');
-        
-        showSuccess('País agregado exitosamente');
-    }
-    
-    function showSuccess(message) {
-        // Implementar notificación de éxito
-        alert(message);
-    }
-    
-    function showError(message) {
-        // Implementar notificación de error
-        alert(message);
-    }
+document.getElementById('country-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  fetch('/api/v3/countries/create/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: e.target.name.value,
+      ubigeo_code: e.target.ubigeo_code.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'País creado' : data.error);
+    if(data.success) location.reload();
+  });
 });
 
-// Funciones globales para los botones de acción
-function editCountry(id) {
-    alert(`Editar país con ID: ${id}`);
+function editCountry(id, name, code) {
+  document.getElementById('edit-country-id').value = id;
+  document.getElementById('edit-country-name').value = name;
+  document.getElementById('edit-country-code').value = code;
+  document.getElementById('edit-country-modal').style.display = 'block';
 }
 
+function closeEditCountryModal() {
+  document.getElementById('edit-country-modal').style.display = 'none';
+}
+
+document.getElementById('edit-country-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('edit-country-id').value;
+  fetch(`/api/v3/countries/${id}/update/`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: document.getElementById('edit-country-name').value,
+      ubigeo_code: document.getElementById('edit-country-code').value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'País actualizado' : data.error);
+    closeEditCountryModal();
+    if(data.success) location.reload();
+  });
+});
+
 function deleteCountry(id) {
-    if (confirm('¿Estás seguro de que quieres eliminar este país?')) {
-        alert(`Eliminar país con ID: ${id}`);
-    }
+  if (!confirm('¿Seguro que deseas eliminar este país?')) return;
+  fetch(`/api/v3/countries/${id}/delete/`, {
+    method: 'DELETE'
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.success ? 'País eliminado' : data.error);
+    if(data.success) location.reload();
+  });
 }
 </script>
 {% endblock %}

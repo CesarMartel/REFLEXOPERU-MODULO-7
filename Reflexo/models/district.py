@@ -9,9 +9,20 @@ class District(models.Model):
         on_delete=models.CASCADE,
         related_name="districts"  # este es el nombre para acceder desde Province
     )
+    
+    # Campos temporales que se agregarán después de la migración
+    ubigeo_code = models.CharField(max_length=6, unique=True, null=True, blank=True, help_text="Código de ubigeo de 6 dígitos")
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
+        if self.ubigeo_code:
+            return f"{self.ubigeo_code} - {self.name}"
         return self.name
+
+    class Meta:
+        verbose_name = "Distrito"
+        verbose_name_plural = "Distritos"
 
 
 class DistrictUser(models.Model):
