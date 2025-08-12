@@ -20,19 +20,19 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #000000 0%, #228B22 50%, #000000 100%);
             min-height: 100vh;
         }
 
         .navbar {
-            background: rgba(44, 62, 80, 0.95) !important;
+            background: rgba(0, 0, 0, 0.95) !important;
             backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
         }
 
         .navbar-brand {
             font-weight: bold;
-            color: #3498db !important;
+            color: #228B22 !important;
         }
 
         .main-container {
@@ -57,7 +57,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #3498db, #2980b9);
+            background: linear-gradient(45deg, #228B22, #32CD32);
             border: none;
             border-radius: 25px;
             padding: 10px 25px;
@@ -66,8 +66,9 @@
         }
 
         .btn-primary:hover {
+            background: linear-gradient(45deg, #32CD32, #228B22);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 10px 20px rgba(34, 139, 34, 0.3);
         }
 
         .form-control {
@@ -114,7 +115,7 @@
         }
 
         .table th {
-            background: linear-gradient(45deg, #2c3e50, #34495e);
+            background: linear-gradient(45deg, #000000, #228B22);
             color: white;
             border: none;
             font-weight: 600;
@@ -131,7 +132,7 @@
         }
 
         .stats-card {
-            background: linear-gradient(45deg, #3498db, #2980b9);
+            background: linear-gradient(45deg, #228B22, #32CD32);
             color: white;
             border-radius: 15px;
             padding: 1.5rem;
@@ -155,8 +156,12 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-map-marker-alt me-2"></i>
-                Sistema de Ubigeo
+                <a href="#" class="navbar-brand">
+    <img src="{% static 'logo.png' %}" alt="Logo" style="height: 20px; vertical-align: middle;">
+    Sistema de Ubigeo
+</a>
+
+
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
