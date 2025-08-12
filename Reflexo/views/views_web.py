@@ -30,20 +30,12 @@ def countries_view(request):
 def regions_view(request):
     """Vista para mostrar regiones"""
     regions = Region.objects.filter(deleted_at__isnull=True)
-    # Agregar información de depuración
-    print(f"Regiones encontradas: {regions.count()}")
-    for region in regions:
-        print(f"Región: {region.id} - {region.name}")
     return render(request, 'regions.html', {'regions': regions})
 
 def provinces_view(request):
     """Vista para mostrar provincias"""
     provinces = Province.objects.all()
     regions = Region.objects.filter(deleted_at__isnull=True)
-    # Agregar información de depuración
-    print(f"Provincias encontradas: {provinces.count()}")
-    for province in provinces:
-        print(f"Provincia: {province.id} - {province.name}")
     return render(request, 'provinces.html', {
         'provinces': provinces,
         'regions': regions
@@ -53,10 +45,6 @@ def districts_view(request):
     """Vista para mostrar distritos"""
     districts = District.objects.all()
     provinces = Province.objects.all()
-    # Agregar información de depuración
-    print(f"Distritos encontrados: {districts.count()}")
-    for district in districts:
-        print(f"Distrito: {district.id} - {district.name}")
     return render(request, 'districts.html', {
         'districts': districts,
         'provinces': provinces

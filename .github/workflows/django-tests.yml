@@ -2,7 +2,7 @@ name: Django Tests
 
 on:
   push:
-    branches: [ main, master, DJANGO-COMPROBACION ]
+    branches: [ main, master, DJANGO-COMPROBACION , sss ]
   pull_request:
     branches: [ main, master ]
 
