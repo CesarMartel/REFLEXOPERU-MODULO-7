@@ -8,7 +8,50 @@
         <i class="fas fa-map-marker-alt text-info me-2"></i>
         Provincias
     </h2>
-    <table class="table table-hover">
+
+    <input type="text" id="busqueda" class="form-control mb-3" placeholder="Buscar por ID, nombre o código...">
+
+    <!-- Formulario para crear provincia (ahora arriba) -->
+    <form id="province-form" class="row g-2 mb-4" autocomplete="off">
+        <div class="col-md-4">
+            <input
+                type="text"
+                name="name"
+                class="form-control"
+                placeholder="Nombre de la provincia"
+                required
+                aria-label="Nombre de la provincia"
+            >
+        </div>
+        <div class="col-md-4">
+            <input
+                type="text"
+                name="ubigeo_code"
+                class="form-control"
+                placeholder="Código ubigeo"
+                required
+                aria-label="Código ubigeo"
+            >
+        </div>
+        <div class="col-md-4">
+            <select
+                name="region_id"
+                class="form-control"
+                required
+                aria-label="Seleccione región"
+            >
+                <option value="" disabled selected>Seleccione región</option>
+                {% for region in regions %}
+                <option value="{{ region.id }}">{{ region.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-success w-100">Crear Provincia</button>
+        </div>
+    </form>
+
+    <table class="table table-hover" id="provinces-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -27,10 +70,22 @@
                 <td>{{ province.name }}</td>
                 <td>{{ province.region.name }}</td>
                 <td>
-                    <button class="btn btn-sm btn-warning" onclick="editProvince({{ province.id }}, '{{ province.name|escapejs }}', '{{ province.ubigeo_code|default_if_none:''|escapejs }}', {{ province.region.id }})">Editar</button>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-warning"
+                        onclick="editProvince({{ province.id }}, '{{ province.name|escapejs }}', '{{ province.ubigeo_code|default_if_none:''|escapejs }}', {{ province.region.id }})"
+                    >
+                        Editar
+                    </button>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-danger" onclick="deleteProvince({{ province.id }})">Eliminar</button>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-danger"
+                        onclick="deleteProvince({{ province.id }})"
+                    >
+                        Eliminar
+                    </button>
                 </td>
             </tr>
             {% empty %}
@@ -40,43 +95,50 @@
             {% endfor %}
         </tbody>
     </table>
-
-    <!-- Formulario para crear provincia -->
-    <form id="province-form" class="row g-2 mt-4">
-        <div class="col-md-4">
-            <input type="text" name="name" class="form-control" placeholder="Nombre de la provincia" required>
-        </div>
-        <div class="col-md-4">
-            <input type="text" name="ubigeo_code" class="form-control" placeholder="Código ubigeo" required>
-        </div>
-        <div class="col-md-4">
-            <select name="region_id" class="form-control" required>
-                <option value="">Seleccione región</option>
-                {% for region in regions %}
-                <option value="{{ region.id }}">{{ region.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-12 mt-2">
-            <button type="submit" class="btn btn-success w-100">Crear Provincia</button>
-        </div>
-    </form>
 </div>
 
 <!-- Modal para editar provincia -->
-<div id="edit-province-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
-  <h4>Editar Provincia</h4>
-  <form id="edit-province-form">
+<div
+    id="edit-province-modal"
+    style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000; max-width:400px; width:90%;"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="editProvinceTitle"
+>
+  <h4 id="editProvinceTitle">Editar Provincia</h4>
+  <form id="edit-province-form" autocomplete="off">
     <input type="hidden" name="id" id="edit-province-id">
     <div class="mb-2">
-      <input type="text" name="name" id="edit-province-name" class="form-control" placeholder="Nombre de la provincia" required>
+      <input
+        type="text"
+        name="name"
+        id="edit-province-name"
+        class="form-control"
+        placeholder="Nombre de la provincia"
+        required
+        aria-label="Nombre de la provincia"
+      >
     </div>
     <div class="mb-2">
-      <input type="text" name="ubigeo_code" id="edit-province-code" class="form-control" placeholder="Código ubigeo" required>
+      <input
+        type="text"
+        name="ubigeo_code"
+        id="edit-province-code"
+        class="form-control"
+        placeholder="Código ubigeo"
+        required
+        aria-label="Código ubigeo"
+      >
     </div>
     <div class="mb-2">
-      <select name="region_id" id="edit-province-region" class="form-control" required>
-        <option value="">Seleccione región</option>
+      <select
+        name="region_id"
+        id="edit-province-region"
+        class="form-control"
+        required
+        aria-label="Seleccione región"
+      >
+        <option value="" disabled>Seleccione región</option>
         {% for region in regions %}
         <option value="{{ region.id }}">{{ region.name }}</option>
         {% endfor %}
@@ -88,21 +150,33 @@
 </div>
 
 <script>
+// Crear provincia
 document.getElementById('province-form').addEventListener('submit', function(e) {
   e.preventDefault();
   fetch('/api/v3/provinces/create/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      name: e.target.name.value,
-      ubigeo_code: e.target.ubigeo_code.value,
+      name: e.target.name.value.trim(),
+      ubigeo_code: e.target.ubigeo_code.value.trim(),
       region_id: e.target.region_id.value
     })
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Provincia creada' : data.error);
+    alert(data.success ? 'Provincia creada' : (data.error || 'Error al crear provincia'));
     if(data.success) location.reload();
+  })
+  .catch(() => alert('Error de conexión al crear provincia'));
+});
+
+// Buscar provincias (filtro)
+document.getElementById('province-search').addEventListener('input', function() {
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#provinces-table tbody tr');
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(filter) ? '' : 'none';
   });
 });
 
@@ -125,17 +199,20 @@ document.getElementById('edit-province-form').addEventListener('submit', functio
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      name: document.getElementById('edit-province-name').value,
-      ubigeo_code: document.getElementById('edit-province-code').value,
+      name: document.getElementById('edit-province-name').value.trim(),
+      ubigeo_code: document.getElementById('edit-province-code').value.trim(),
       region_id: document.getElementById('edit-province-region').value
     })
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Provincia actualizada' : data.error);
-    closeEditProvinceModal();
-    if(data.success) location.reload();
-  });
+    alert(data.success ? 'Provincia actualizada' : (data.error || 'Error al actualizar provincia'));
+    if(data.success) {
+      closeEditProvinceModal();
+      location.reload();
+    }
+  })
+  .catch(() => alert('Error de conexión al actualizar provincia'));
 });
 
 function deleteProvince(id) {
@@ -145,13 +222,10 @@ function deleteProvince(id) {
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Provincia eliminada' : data.error);
+    alert(data.success ? 'Provincia eliminada' : (data.error || 'Error al eliminar provincia'));
     if(data.success) location.reload();
-  });
+  })
+  .catch(() => alert('Error de conexión al eliminar provincia'));
 }
 </script>
 {% endblock %}
-
-
-
-

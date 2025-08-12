@@ -13,6 +13,27 @@
         </div>
     </div>
 
+    <input type="text" id="busqueda" class="form-control mb-3" placeholder="Buscar por ID, nombre o código...">
+
+    <!-- Formulario para crear región (ahora arriba) -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card p-3">
+                <form id="region-form" class="row g-2">
+                    <div class="col-md-5">
+                        <input type="text" name="name" class="form-control" placeholder="Nombre de la región" required>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" name="ubigeo_code" class="form-control" placeholder="Código ubigeo" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">Crear Región</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Información de depuración -->
     <div class="row mb-3">
         <div class="col-12">
@@ -24,12 +45,13 @@
         </div>
     </div>
 
+    <!-- Tabla de regiones -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="data-table">
-                        <table class="table table-hover">
+                        <table class="table table-hover" id="region-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -73,13 +95,6 @@
                                             <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
                                             <br>
                                             <strong>No hay regiones registradas</strong>
-                                            <br>
-                                            <small>Esto puede deberse a que:</small>
-                                            <ul class="list-unstyled mt-2">
-                                                <li>• No se han cargado los datos desde los archivos CSV</li>
-                                                <li>• Los nuevos campos de ubigeo no han sido migrados</li>
-                                                <li>• Hay un problema con la base de datos</li>
-                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -87,27 +102,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Formulario para crear región -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <form id="region-form" class="row g-2">
-                        <div class="col-md-5">
-                            <input type="text" name="name" class="form-control" placeholder="Nombre de la región" required>
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="ubigeo_code" class="form-control" placeholder="Código ubigeo" required>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-success w-100">Crear Región</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -131,6 +125,7 @@
 </div>
 
 <script>
+// Crear región
 document.getElementById('region-form').addEventListener('submit', function(e) {
   e.preventDefault();
   fetch('/api/v3/regions/create/', {
@@ -148,7 +143,19 @@ document.getElementById('region-form').addEventListener('submit', function(e) {
   });
 });
 
-// Mostrar modal de edición
+// Filtrar tabla en cliente
+document.getElementById('search-input').addEventListener('keyup', function() {
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#region-table tbody tr');
+  rows.forEach(row => {
+    const id = row.cells[0]?.innerText.toLowerCase() || '';
+    const codigo = row.cells[1]?.innerText.toLowerCase() || '';
+    const nombre = row.cells[2]?.innerText.toLowerCase() || '';
+    row.style.display = (id.includes(filter) || codigo.includes(filter) || nombre.includes(filter)) ? '' : 'none';
+  });
+});
+
+// Modal edición
 function editRegion(id, name, code) {
   document.getElementById('edit-region-id').value = id;
   document.getElementById('edit-region-name').value = name;
@@ -156,12 +163,10 @@ function editRegion(id, name, code) {
   document.getElementById('edit-region-modal').style.display = 'block';
 }
 
-// Cerrar modal de edición
 function closeEditModal() {
   document.getElementById('edit-region-modal').style.display = 'none';
 }
 
-// Enviar edición
 document.getElementById('edit-region-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = document.getElementById('edit-region-id').value;
@@ -181,12 +186,10 @@ document.getElementById('edit-region-form').addEventListener('submit', function(
   });
 });
 
-// Eliminar región
+// Eliminar
 function deleteRegion(id) {
   if (!confirm('¿Seguro que deseas eliminar esta región?')) return;
-  fetch(`/api/v3/regions/${id}/delete/`, {
-    method: 'DELETE'
-  })
+  fetch(`/api/v3/regions/${id}/delete/`, { method: 'DELETE' })
   .then(res => res.json())
   .then(data => {
     alert(data.success ? 'Región eliminada' : data.error);
@@ -195,6 +198,3 @@ function deleteRegion(id) {
 }
 </script>
 {% endblock %}
-
-
-

@@ -82,6 +82,7 @@ urlpatterns = [
     path('debug/', debug_view, name='debug_view'),
     path('countries/', countries_view, name='countries_view'),
     path('regions/', regions_view, name='regions_view'),
-    path('provinces/', provinces_view, name='provinces_view'),
+    path('provinces/', provinces_view, name='provinces_view'),   # para mostrar HTML
+    path('api/provinces/', ProvinceListView.as_view(), name='api_provinces'),  # API JSON,
     path('districts/', districts_view, name='districts_view'),
 ]
