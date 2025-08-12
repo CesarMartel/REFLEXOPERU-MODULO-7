@@ -40,6 +40,7 @@
                 <th>Código Ubigeo</th>
                 <th>Nombre</th>
                 <th>Provincia</th>
+                <th>Última modificación</th>
                 <th>Editar</th>
                 <th>Eliminar</th>
             </tr>
@@ -52,6 +53,13 @@
                 <td>{{ district.name }}</td>
                 <td>{{ district.province.name }}</td>
                 <td>
+                    {% if district.updated_at %}
+                        {{ district.updated_at|date:"d/m/Y H:i" }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
                     <button class="btn btn-sm btn-warning" onclick="editDistrict({{ district.id }}, '{{ district.name|escapejs }}', '{{ district.ubigeo_code|default_if_none:''|escapejs }}', {{ district.province.id }})">Editar</button>
                 </td>
                 <td>
@@ -60,7 +68,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center text-muted">No hay distritos registrados.</td>
+                <td colspan="7" class="text-center text-muted">No hay distritos registrados.</td>
             </tr>
             {% endfor %}
         </tbody>

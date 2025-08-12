@@ -58,6 +58,7 @@
                                     <th>Código Ubigeo</th>
                                     <th>Nombre</th>
                                     <th>Estado</th>
+                                    <th>Última modificación</th>
                                     <th>Editar</th>
                                     <th>Eliminar</th>
                                 </tr>
@@ -82,6 +83,13 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        {% if region.updated_at %}
+                                            {{ region.updated_at|date:"d/m/Y H:i" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
                                         <button class="btn btn-sm btn-warning" onclick="editRegion({{ region.id }}, '{{ region.name|escapejs }}', '{{ region.ubigeo_code|default_if_none:''|escapejs }}')">Editar</button>
                                     </td>
                                     <td>
@@ -90,7 +98,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">
+                                    <td colspan="7" class="text-center text-muted">
                                         <div class="py-4">
                                             <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
                                             <br>

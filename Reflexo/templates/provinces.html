@@ -58,6 +58,7 @@
                 <th>Código Ubigeo</th>
                 <th>Nombre</th>
                 <th>Región</th>
+                <th>Última modificación</th>
                 <th>Editar</th>
                 <th>Eliminar</th>
             </tr>
@@ -69,6 +70,13 @@
                 <td>{{ province.ubigeo_code }}</td>
                 <td>{{ province.name }}</td>
                 <td>{{ province.region.name }}</td>
+                <td>
+                    {% if province.updated_at %}
+                        {{ province.updated_at|date:"d/m/Y H:i" }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
                 <td>
                     <button
                         type="button"
@@ -90,7 +98,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center text-muted">No hay provincias registradas.</td>
+                <td colspan="7" class="text-center text-muted">No hay provincias registradas.</td>
             </tr>
             {% endfor %}
         </tbody>
