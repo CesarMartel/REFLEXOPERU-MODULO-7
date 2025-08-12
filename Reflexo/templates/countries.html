@@ -85,9 +85,8 @@
 // Crear país
 document.getElementById('country-form').addEventListener('submit', function(e) {
   e.preventDefault();
-  fetch('/api/v3/countries/create/', {
+  fetchWithCSRF('/api/v3/countries/create/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: e.target.name.value,
       ubigeo_code: e.target.ubigeo_code.value
@@ -95,8 +94,16 @@ document.getElementById('country-form').addEventListener('submit', function(e) {
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'País creado' : data.error);
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('País creado exitosamente');
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al crear país', true);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al crear país', true);
   });
 });
 
@@ -115,9 +122,8 @@ function closeEditCountryModal() {
 document.getElementById('edit-country-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = document.getElementById('edit-country-id').value;
-  fetch(`/api/v3/countries/${id}/update/`, {
+  fetchWithCSRF(`/api/v3/countries/${id}/update/`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: document.getElementById('edit-country-name').value,
       ubigeo_code: document.getElementById('edit-country-code').value
@@ -125,22 +131,38 @@ document.getElementById('edit-country-form').addEventListener('submit', function
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'País actualizado' : data.error);
-    closeEditCountryModal();
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('País actualizado exitosamente');
+      closeEditCountryModal();
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al actualizar país', true);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al actualizar país', true);
   });
 });
 
 // Eliminar país
 function deleteCountry(id) {
   if (!confirm('¿Seguro que deseas eliminar este país?')) return;
-  fetch(`/api/v3/countries/${id}/delete/`, {
+  fetchWithCSRF(`/api/v3/countries/${id}/delete/`, {
     method: 'DELETE'
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'País eliminado' : data.error);
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('País eliminado exitosamente');
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al eliminar país', true);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al eliminar país', true);
   });
 }
 </script>

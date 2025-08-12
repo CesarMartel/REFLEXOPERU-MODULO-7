@@ -662,13 +662,28 @@ def country_update(request, country_id):
         country = Country.objects.get(id=country_id)
         
         # Actualizar campos
-        country.name = data.get('name', country.name)
-        country.ubigeo_code = data.get('ubigeo_code', country.ubigeo_code)
+        if 'name' in data:
+            country.name = data['name']
+        if 'ubigeo_code' in data:
+            # Validar que el código sea único si se proporciona
+            if data['ubigeo_code'] and Country.objects.filter(ubigeo_code=data['ubigeo_code']).exclude(id=country_id).exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'El código de ubigeo ya existe'
+                }, status=400)
+            country.ubigeo_code = data['ubigeo_code']
         
         country.save()
         
         return JsonResponse({
             'success': True,
+            'data': {
+                'id': country.id,
+                'name': country.name,
+                'ubigeo_code': country.ubigeo_code,
+                'created_at': country.created_at,
+                'updated_at': country.updated_at
+            },
             'message': 'País actualizado exitosamente'
         })
     except json.JSONDecodeError:

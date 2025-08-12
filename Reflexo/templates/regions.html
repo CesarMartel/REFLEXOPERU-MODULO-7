@@ -128,9 +128,8 @@
 // Crear región
 document.getElementById('region-form').addEventListener('submit', function(e) {
   e.preventDefault();
-  fetch('/api/v3/regions/create/', {
+  fetchWithCSRF('/api/v3/regions/create/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: e.target.name.value,
       ubigeo_code: e.target.ubigeo_code.value
@@ -138,13 +137,21 @@ document.getElementById('region-form').addEventListener('submit', function(e) {
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Región creada' : data.error);
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('Región creada exitosamente');
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al crear región', true);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al crear región', true);
   });
 });
 
 // Filtrar tabla en cliente
-document.getElementById('search-input').addEventListener('keyup', function() {
+document.getElementById('busqueda').addEventListener('keyup', function() {
   const filter = this.value.toLowerCase();
   const rows = document.querySelectorAll('#region-table tbody tr');
   rows.forEach(row => {
@@ -170,9 +177,8 @@ function closeEditModal() {
 document.getElementById('edit-region-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = document.getElementById('edit-region-id').value;
-  fetch(`/api/v3/regions/${id}/update/`, {
+  fetchWithCSRF(`/api/v3/regions/${id}/update/`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: document.getElementById('edit-region-name').value,
       ubigeo_code: document.getElementById('edit-region-code').value
@@ -180,20 +186,38 @@ document.getElementById('edit-region-form').addEventListener('submit', function(
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Región actualizada' : data.error);
-    closeEditModal();
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('Región actualizada exitosamente');
+      closeEditModal();
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al actualizar región', true);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al actualizar región', true);
   });
 });
 
 // Eliminar
 function deleteRegion(id) {
   if (!confirm('¿Seguro que deseas eliminar esta región?')) return;
-  fetch(`/api/v3/regions/${id}/delete/`, { method: 'DELETE' })
+  fetchWithCSRF(`/api/v3/regions/${id}/delete/`, { 
+    method: 'DELETE' 
+  })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Región eliminada' : data.error);
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('Región eliminada exitosamente');
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al eliminar región', true);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al eliminar región', true);
   });
 }
 </script>

@@ -153,9 +153,8 @@
 // Crear provincia
 document.getElementById('province-form').addEventListener('submit', function(e) {
   e.preventDefault();
-  fetch('/api/v3/provinces/create/', {
+  fetchWithCSRF('/api/v3/provinces/create/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: e.target.name.value.trim(),
       ubigeo_code: e.target.ubigeo_code.value.trim(),
@@ -164,14 +163,21 @@ document.getElementById('province-form').addEventListener('submit', function(e) 
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Provincia creada' : (data.error || 'Error al crear provincia'));
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('Provincia creada exitosamente');
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al crear provincia', true);
+    }
   })
-  .catch(() => alert('Error de conexión al crear provincia'));
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al crear provincia', true);
+  });
 });
 
 // Buscar provincias (filtro)
-document.getElementById('province-search').addEventListener('input', function() {
+document.getElementById('busqueda').addEventListener('input', function() {
   const filter = this.value.toLowerCase();
   const rows = document.querySelectorAll('#provinces-table tbody tr');
   rows.forEach(row => {
@@ -195,9 +201,8 @@ function closeEditProvinceModal() {
 document.getElementById('edit-province-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = document.getElementById('edit-province-id').value;
-  fetch(`/api/v3/provinces/${id}/update/`, {
+  fetchWithCSRF(`/api/v3/provinces/${id}/update/`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: document.getElementById('edit-province-name').value.trim(),
       ubigeo_code: document.getElementById('edit-province-code').value.trim(),
@@ -206,26 +211,38 @@ document.getElementById('edit-province-form').addEventListener('submit', functio
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Provincia actualizada' : (data.error || 'Error al actualizar provincia'));
-    if(data.success) {
+    if (data.success) {
+      showMessage('Provincia actualizada exitosamente');
       closeEditProvinceModal();
       location.reload();
+    } else {
+      showMessage(data.error || 'Error al actualizar provincia', true);
     }
   })
-  .catch(() => alert('Error de conexión al actualizar provincia'));
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al actualizar provincia', true);
+  });
 });
 
 function deleteProvince(id) {
   if (!confirm('¿Seguro que deseas eliminar esta provincia?')) return;
-  fetch(`/api/v3/provinces/${id}/delete/`, {
+  fetchWithCSRF(`/api/v3/provinces/${id}/delete/`, {
     method: 'DELETE'
   })
   .then(res => res.json())
   .then(data => {
-    alert(data.success ? 'Provincia eliminada' : (data.error || 'Error al eliminar provincia'));
-    if(data.success) location.reload();
+    if (data.success) {
+      showMessage('Provincia eliminada exitosamente');
+      location.reload();
+    } else {
+      showMessage(data.error || 'Error al eliminar provincia', true);
+    }
   })
-  .catch(() => alert('Error de conexión al eliminar provincia'));
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error de conexión al eliminar provincia', true);
+  });
 }
 </script>
 {% endblock %}
