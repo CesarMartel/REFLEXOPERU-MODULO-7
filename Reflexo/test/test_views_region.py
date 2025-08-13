@@ -10,5 +10,11 @@ def test_list_regions(client):
     assert response.status_code == 200
 
     data = response.json()
-    names = [reg["name"] for reg in data]
+    # La API devuelve {success, data, count}, necesitamos acceder a data.data
+    if isinstance(data, dict) and 'data' in data:
+        regions_data = data['data']
+    else:
+        regions_data = data
+    
+    names = [reg["name"] for reg in regions_data]
     assert "Sierra" in names

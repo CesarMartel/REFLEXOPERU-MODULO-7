@@ -12,5 +12,11 @@ def test_list_provinces(client):
     assert response.status_code == 200
 
     data = response.json()
-    names = [prov["name"] for prov in data]
+    # La API devuelve {success, data, count}, necesitamos acceder a data.data
+    if isinstance(data, dict) and 'data' in data:
+        provinces_data = data['data']
+    else:
+        provinces_data = data
+    
+    names = [prov["name"] for prov in provinces_data]
     assert "Lima" in names

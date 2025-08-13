@@ -33,10 +33,14 @@ class Command(BaseCommand):
             with open(countries_file, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f, delimiter=';')
                 for row in reader:
+                    iso2_code = row.get('ISO2', '')
+                    # Si el código ya existe, agregar un sufijo
+                    if Country.objects.filter(ubigeo_code=iso2_code).exists():
+                        iso2_code = f"{iso2_code}_{row['name'][:3].upper()}"
+                    
                     Country.objects.create(
                         name=row['name'],
-                        phone_code=row['phone_code'],
-                        ISO2=row['ISO2']
+                        ubigeo_code=iso2_code if iso2_code else None
                     )
             
             # Cargar regiones

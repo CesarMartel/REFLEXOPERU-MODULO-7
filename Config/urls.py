@@ -1,9 +1,6 @@
 from django.contrib import admin
 from django.urls import path
 from Reflexo.views import (
-    list_countries,
-    RegionView,
-    ProvinceListView,
     home_view,
     countries_view,
     regions_view,
@@ -14,23 +11,26 @@ from Reflexo.views import (
     api_regions,
     api_provinces,
     api_districts,
+    # CRUD endpoints - Regiones
     regions,
-    provinces,
-    districts,
-    countries,
-    # CRUD endpoints
     region_detail,
     region_create,
     region_update,
     region_delete,
+    # CRUD endpoints - Provincias
+    provinces,
     province_detail,
     province_create,
     province_update,
     province_delete,
+    # CRUD endpoints - Distritos
+    districts,
     district_detail,
     district_create,
     district_update,
     district_delete,
+    # CRUD endpoints - Países
+    countries,
     country_create,
     country_update,
     country_delete,
@@ -40,10 +40,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # API endpoints - versiones simples y principales
-    path('api/countries/', list_countries, name='list_countries'),
-    path('api/regions/', RegionView.as_view(), name='list_regions'),
-    path('api/provinces/', ProvinceListView.as_view(), name='list_provinces'),
-    path('api/districts/', api_districts, name='list_districts'),
+    path('api/countries/', countries, name='list_countries'),
+    path('api/regions/', regions, name='list_regions'),
+    path('api/provinces/', provinces, name='list_provinces'),
+    path('api/districts/', districts, name='list_districts'),
 
     # API endpoints v2 (si las necesitas, sino elimina)
     path('api/v2/countries/', api_countries, name='api_countries'),

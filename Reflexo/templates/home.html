@@ -156,28 +156,32 @@ $(document).ready(function() {
     function loadStats() {
         // Cargar conteo de países
         $.get('/api/countries/', function(data) {
-            $('#countries-count').text(data.length);
+            var count = data.success ? data.count : data.length;
+            $('#countries-count').text(count);
         }).fail(function() {
             $('#countries-count').text('0');
         });
         
         // Cargar conteo de regiones
         $.get('/api/regions/', function(data) {
-            $('#regions-count').text(data.length);
+            var count = data.success ? data.count : data.length;
+            $('#regions-count').text(count);
         }).fail(function() {
             $('#regions-count').text('0');
         });
         
         // Cargar conteo de provincias
         $.get('/api/provinces/', function(data) {
-            $('#provinces-count').text(data.length);
+            var count = data.success ? data.count : data.length;
+            $('#provinces-count').text(count);
         }).fail(function() {
             $('#provinces-count').text('0');
         });
         
         // Cargar conteo de distritos
         $.get('/api/districts/', function(data) {
-            $('#districts-count').text(data.length);
+            var count = data.success ? data.count : data.length;
+            $('#districts-count').text(count);
         }).fail(function() {
             $('#districts-count').text('0');
         });

@@ -53,23 +53,35 @@ def districts_view(request):
 # API endpoints para AJAX
 def api_countries(request):
     """API endpoint para países"""
-    countries = Country.objects.values('id', 'name', 'phone_code', 'ISO2')
-    return JsonResponse(list(countries), safe=False)
+    try:
+        countries = Country.objects.values('id', 'name', 'ubigeo_code')
+        return JsonResponse(list(countries), safe=False)
+    except Exception as e:
+        return JsonResponse([], safe=False)
 
 def api_regions(request):
     """API endpoint para regiones"""
-    regions = Region.objects.filter(deleted_at__isnull=True).values('id', 'name')
-    return JsonResponse(list(regions), safe=False)
+    try:
+        regions = Region.objects.filter(deleted_at__isnull=True).values('id', 'name', 'ubigeo_code')
+        return JsonResponse(list(regions), safe=False)
+    except Exception as e:
+        return JsonResponse([], safe=False)
 
 def api_provinces(request):
     """API endpoint para provincias"""
-    provinces = Province.objects.values('id', 'name', 'region__name')
-    return JsonResponse(list(provinces), safe=False)
+    try:
+        provinces = Province.objects.values('id', 'name', 'ubigeo_code', 'region__name')
+        return JsonResponse(list(provinces), safe=False)
+    except Exception as e:
+        return JsonResponse([], safe=False)
 
 def api_districts(request):
     """API endpoint para distritos"""
-    districts = District.objects.values('id', 'name', 'province__name')
-    return JsonResponse(list(districts), safe=False)
+    try:
+        districts = District.objects.values('id', 'name', 'ubigeo_code', 'province__name')
+        return JsonResponse(list(districts), safe=False)
+    except Exception as e:
+        return JsonResponse([], safe=False)
 
 
 

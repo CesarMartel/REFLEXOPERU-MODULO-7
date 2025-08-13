@@ -1,23 +1,23 @@
 # Reflexo/views/__init__.py
 
 # Países
-from .views_country import list_countries
+from .views_country import (
+    countries, country_detail, country_create, country_update, country_delete
+)
 
 # Provincias
-from .views_provincia import ProvinceListView
+from .views_provincia import (
+    provinces, province_detail, province_create, province_update, province_delete
+)
 
 # Regiones
-from .views_region import RegionView
+from .views_region import (
+    regions, region_detail, region_create, region_update, region_delete
+)
 
-# Endpoints de ubigeo (CRUD completo)
-from .views_ubigeoController import (
-    regions, provinces, districts, countries,
-    region_detail, region_create, region_update, region_delete,
-    province_detail, province_create, province_update, province_delete,
-    district_detail, district_create, district_update, district_delete,
-    country_create,
-    country_update,
-    country_delete,
+# Distritos
+from .views_distrito import (
+    districts, district_detail, district_create, district_update, district_delete
 )
 
 # Vistas web

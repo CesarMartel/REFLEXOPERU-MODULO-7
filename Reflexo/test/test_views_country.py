@@ -17,7 +17,13 @@ def test_list_countries(client):
     data = response.json()
 
     # Solo deben aparecer países activos
-    names = [country["name"] for country in data]
+    # La API devuelve {success, data, count}, necesitamos acceder a data.data
+    if isinstance(data, dict) and 'data' in data:
+        countries_data = data['data']
+    else:
+        countries_data = data
+    
+    names = [country["name"] for country in countries_data]
     assert "Peru" in names
     assert "Mexico" in names
     assert "Argentina" not in names
