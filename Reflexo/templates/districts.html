@@ -103,16 +103,13 @@
 // Crear distrito
 document.getElementById('district-form').addEventListener('submit', function(e) {
   e.preventDefault();
-  fetchWithCSRF('/api/v3/districts/create/', {
-    method: 'POST',
-    body: JSON.stringify({
-      name: e.target.name.value,
-      ubigeo_code: e.target.ubigeo_code.value,
-      province_id: e.target.province_id.value
-    })
+  apiPost('/api/v3/districts/create/', {
+    name: e.target.name.value,
+    ubigeo_code: e.target.ubigeo_code.value,
+    province_id: e.target.province_id.value
   })
-  .then(res => res.json())
-  .then(data => {
+  .then(response => {
+    const data = response.data;
     if (data.success) {
       showMessage('Distrito creado exitosamente');
       location.reload();
@@ -122,7 +119,7 @@ document.getElementById('district-form').addEventListener('submit', function(e) 
   })
   .catch(error => {
     console.error('Error:', error);
-    showMessage('Error de conexión al crear distrito', true);
+    // El error ya se maneja globalmente en el interceptor
   });
 });
 
@@ -165,16 +162,13 @@ function closeEditDistrictModal() {
 document.getElementById('edit-district-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = document.getElementById('edit-district-id').value;
-  fetchWithCSRF(`/api/v3/districts/${id}/update/`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      name: document.getElementById('edit-district-name').value,
-      ubigeo_code: document.getElementById('edit-district-code').value,
-      province_id: document.getElementById('edit-district-province').value
-    })
+  apiPut(`/api/v3/districts/${id}/update/`, {
+    name: document.getElementById('edit-district-name').value,
+    ubigeo_code: document.getElementById('edit-district-code').value,
+    province_id: document.getElementById('edit-district-province').value
   })
-  .then(res => res.json())
-  .then(data => {
+  .then(response => {
+    const data = response.data;
     if (data.success) {
       showMessage('Distrito actualizado exitosamente');
       closeEditDistrictModal();
@@ -185,18 +179,16 @@ document.getElementById('edit-district-form').addEventListener('submit', functio
   })
   .catch(error => {
     console.error('Error:', error);
-    showMessage('Error de conexión al actualizar distrito', true);
+    // El error ya se maneja globalmente en el interceptor
   });
 });
 
 // Eliminar distrito
 function deleteDistrict(id) {
   if (!confirm('¿Seguro que deseas eliminar este distrito?')) return;
-  fetchWithCSRF(`/api/v3/districts/${id}/delete/`, {
-    method: 'DELETE'
-  })
-  .then(res => res.json())
-  .then(data => {
+  apiDelete(`/api/v3/districts/${id}/delete/`)
+  .then(response => {
+    const data = response.data;
     if (data.success) {
       showMessage('Distrito eliminado exitosamente');
       location.reload();
@@ -206,12 +198,8 @@ function deleteDistrict(id) {
   })
   .catch(error => {
     console.error('Error:', error);
-    showMessage('Error de conexión al eliminar distrito', true);
+    // El error ya se maneja globalmente en el interceptor
   });
 }
 </script>
 {% endblock %}
-
-
-
-
