@@ -82,7 +82,3 @@ def api_districts(request):
         return JsonResponse(list(districts), safe=False)
     except Exception as e:
         return JsonResponse([], safe=False)
-
-
-
-
