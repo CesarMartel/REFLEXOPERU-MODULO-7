@@ -15,37 +15,36 @@ El Sistema ReflexoPeru es una plataforma médica especializada en terapias, dise
 - Frontend : HTML, CSS, JavaScript, React (consumo de APIs)
 - Otros : Pillow para manejo de imágenes
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
-## Estructura del Proyecto
-REFLEXOPERU-MODULO-7/
-├── Config/                  # Configuración del proyecto Django
-├── Reflexo/                 # Aplicación principal
-│   ├── models/              # Modelos de datos
-│   │   ├── country.py       # Modelo de países
-│   │   ├── region.py        # Modelo de regiones
-│   │   ├── province.py      # Modelo de provincias
-│   │   └── district.py      # Modelo de distritos
-│   ├── views/               # Controladores y APIs
-│   │   ├── views_country.py        # API de países
-│   │   ├── views_region.py         # API de regiones
-│   │   ├── views_provincia.py      # API de provincias
-│   │   ├── views_distrito.py       # API de distritos
+Estructura del Proyecto
+├── Config/                     # Configuración del proyecto Django
+├── Reflexo/                    # Aplicación principal
+│   ├── models/                 # Modelos de datos
+│   │   ├── country.py          # Modelo de países
+│   │   ├── region.py           # Modelo de regiones
+│   │   ├── province.py         # Modelo de provincias
+│   │   └── district.py         # Modelo de distritos
+│   ├── views/                  # Controladores y APIs
+│   │   ├── views_country.py    # API de países
+│   │   ├── views_region.py     # API de regiones
+│   │   ├── views_provincia.py  # API de provincias
+│   │   ├── views_distrito.py   # API de distritos
 │   │   ├── views_ubigeoController.py # API unificada
-│   │   └── views_web.py            # Vistas web
-│   ├── templates/           # Plantillas HTML
-│   ├── test/                # Pruebas unitarias
-│   └── management/commands/ # Comandos personalizados
-│       ├── load_sample_data.py    # Carga de datos de muestra
-│       ├── load_ubigeo_data.py    # Carga de datos de ubigeo
-│       └── validate_ubigeo.py     # Validación de códigos
-├── bd/                      # Archivos CSV con datos iniciales
-│   ├── countries.csv        # Datos de países
-│   ├── regions.csv          # Datos de regiones
-│   ├── provinces.csv        # Datos de provincias
-│   └── districts.csv        # Datos de distritos
-└── static/                  # Archivos estáticos
-    ├── css/                 # Hojas de estilo
-    ├── js/                  # Scripts JavaScript
-    └── logo.png             # Logo del sistema
+│   │   └── views_web.py        # Vistas web
+│   ├── templates/              # Plantillas HTML
+│   ├── test/                   # Pruebas unitarias
+│   └── management/commands/    # Comandos personalizados
+│       ├── load_sample_data.py # Carga de datos de muestra
+│       ├── load_ubigeo_data.py # Carga de datos de ubigeo
+│       └── validate_ubigeo.py  # Validación de códigos
+├── bd/                         # Archivos CSV con datos iniciales
+│   ├── countries.csv           # Datos de países
+│   ├── regions.csv             # Datos de regiones
+│   ├── provinces.csv           # Datos de provincias
+│   └── districts.csv           # Datos de distritos
+└── static/                     # Archivos estáticos
+    ├── css/                    # Hojas de estilo
+    ├── js/                     # Scripts JavaScript
+    └── logo.png                # Logo del sistema
     -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     ### Modelo Country (País)
 - Campos : name, ubigeo_code, created_at, updated_at
