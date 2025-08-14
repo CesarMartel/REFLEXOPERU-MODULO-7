@@ -46,7 +46,7 @@ Estructura del Proyecto
     ├── js/                     # Scripts JavaScript
     └── logo.png                # Logo del sistema
     -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### Modelo Country (País)
+### Modelo Country (País)
 - Campos : name, ubigeo_code, created_at, updated_at
 - Relaciones : users, patients, therapists
 ### Modelo Region (Región)
