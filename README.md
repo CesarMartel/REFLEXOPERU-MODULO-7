@@ -21,7 +21,18 @@ Gestión de Proyectos: Trello
 
 Integración Continua: GitHub Actions
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-4. Equipo de Desarrollo
+4. Librerías Utilizadas
+El proyecto utiliza las siguientes librerías:
+
+| Librería                | Versión | Descripción                                           | Estado         |
+| ----------------------- | ------- | ----------------------------------------------------- | -------------- |
+| Django                  | 5.2.4   | Framework web principal                               | En uso         |
+| Django REST Framework   | 3.15.2  | Para crear APIs RESTful                               | Parcialmente   |
+| pytest                  | 8.4.1   | Framework de pruebas                                  | En uso         |
+| pytest-django           | 4.11.1  | Integración de pytest con Django                      | En uso         |
+| pytest-cov              | 5.0.0   | Para análisis de cobertura de código                  | En uso         |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+5. Equipo de Desarrollo
 El equipo encargado de la migración del módulo de Ubigeo está compuesto por los siguientes miembros:
 
 | Rol                 | Nombre            |
