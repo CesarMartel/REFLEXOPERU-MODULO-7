@@ -10,7 +10,6 @@ El Sistema ReflexoPeru es una plataforma médica especializada en terapias, dise
 - Roxana Matamoros - Desarrolladora Frontend
 ## Tecnologías Utilizadas
 - Backend : Django 5.2.4, Django REST Framework 3.15.2
-- Base de Datos : SQLite (desarrollo), MySQL (producción)
 - Testing : Pytest, Pytest-Django, Pytest-cov
 - Frontend : HTML, CSS, JavaScript, React (consumo de APIs)
 - Otros : Pillow para manejo de imágenes
