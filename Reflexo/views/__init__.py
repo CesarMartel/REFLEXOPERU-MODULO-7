@@ -20,6 +20,13 @@ from .views_distrito import (
     districts, district_detail, district_create, district_update, district_delete
 )
 
+# Direcciones
+from .address import (
+    addresses, address_detail, address_create, address_update, address_delete,
+    addresses_by_country, addresses_by_region, addresses_by_province, addresses_by_district,
+    search_addresses, addresses_by_ubigeo, address_restore
+)
+
 # Vistas web
 from .views_web import (
     home_view,
