@@ -4,12 +4,10 @@ from ..services.country_service import CountryService
 from ..services.region_service import RegionService
 from ..services.province_service import ProvinceService
 from ..services.district_service import DistrictService
-from ..services.address_service import AddressService
 from ..models.country import Country
 from ..models.region import Region
 from ..models.province import Province
 from ..models.district import District
-from ..models.address import Address
 
 
 class CountryServiceTest(TestCase):
@@ -194,94 +192,3 @@ class DistrictServiceTest(TestCase):
         district = DistrictService.create_district(data)
         self.assertEqual(district.name, 'Miraflores')
         self.assertEqual(district.province, self.province)
-
-
-class AddressServiceTest(TestCase):
-    """Tests para AddressService"""
-    
-    def setUp(self):
-        self.country = Country.objects.create(
-            name='Perú',
-            ubigeo_code='PE'
-        )
-        self.region = Region.objects.create(
-            name='Lima',
-            ubigeo_code='15'
-        )
-        self.province = Province.objects.create(
-            name='Lima',
-            region=self.region,
-            ubigeo_code='1501'
-        )
-        self.district = District.objects.create(
-            name='Lima',
-            province=self.province,
-            ubigeo_code='150101'
-        )
-        self.address_data = {
-            'street': 'Av. Arequipa',
-            'number': '123',
-            'country': self.country,
-            'region': self.region,
-            'province': self.province,
-            'district': self.district
-        }
-        self.address = Address.objects.create(**self.address_data)
-    
-    def test_get_all_addresses(self):
-        """Test de obtener todas las direcciones"""
-        addresses = AddressService.get_all_addresses()
-        self.assertEqual(len(addresses), 1)
-        self.assertEqual(addresses[0].street, 'Av. Arequipa')
-    
-    def test_get_address_by_id(self):
-        """Test de obtener dirección por ID"""
-        address = AddressService.get_address_by_id(self.address.id)
-        self.assertEqual(address.street, 'Av. Arequipa')
-    
-    def test_create_address(self):
-        """Test de crear dirección"""
-        data = {
-            'street': 'Av. Test',
-            'number': '456',
-            'country': self.country.id,
-            'region': self.region.id,
-            'province': self.province.id,
-            'district': self.district.id
-        }
-        address = AddressService.create_address(data)
-        self.assertEqual(address.street, 'Av. Test')
-        self.assertEqual(address.number, '456')
-    
-    def test_create_address_missing_required_fields(self):
-        """Test de crear dirección sin campos requeridos"""
-        data = {'street': 'Av. Test'}
-        with self.assertRaises(Exception):
-            AddressService.create_address(data)
-    
-    def test_delete_address_soft_delete(self):
-        """Test de soft delete de dirección"""
-        result = AddressService.delete_address(self.address.id)
-        self.assertTrue(result)
-        # La dirección debe seguir existiendo pero con is_active=False
-        address = Address.objects.get(id=self.address.id)
-        self.assertFalse(address.is_active)
-    
-    def test_restore_address(self):
-        """Test de restaurar dirección"""
-        self.address.is_active = False
-        self.address.save()
-        address = AddressService.restore_address(self.address.id)
-        self.assertTrue(address.is_active)
-    
-    def test_get_addresses_by_country(self):
-        """Test de obtener direcciones por país"""
-        addresses = AddressService.get_addresses_by_country(self.country.id)
-        self.assertEqual(len(addresses), 1)
-        self.assertEqual(addresses[0].street, 'Av. Arequipa')
-    
-    def test_search_addresses(self):
-        """Test de búsqueda de direcciones"""
-        addresses = AddressService.search_addresses('Arequipa')
-        self.assertEqual(len(addresses), 1)
-        self.assertEqual(addresses[0].street, 'Av. Arequipa')

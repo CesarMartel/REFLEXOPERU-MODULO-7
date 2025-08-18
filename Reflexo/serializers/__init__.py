@@ -35,15 +35,7 @@ from .district_serializer import (
     DistrictWithRegionSerializer
 )
 
-from .address_serializer import (
-    AddressSerializer,
-    AddressListSerializer,
-    AddressCreateSerializer,
-    AddressUpdateSerializer,
-    AddressDetailSerializer,
-    AddressWithUbigeoSerializer,
-    AddressCompactSerializer
-)
+
 
 __all__ = [
     # Country serializers
@@ -76,12 +68,5 @@ __all__ = [
     'DistrictWithProvinceSerializer',
     'DistrictWithRegionSerializer',
     
-    # Address serializers
-    'AddressSerializer',
-    'AddressListSerializer',
-    'AddressCreateSerializer',
-    'AddressUpdateSerializer',
-    'AddressDetailSerializer',
-    'AddressWithUbigeoSerializer',
-    'AddressCompactSerializer',
+
 ]

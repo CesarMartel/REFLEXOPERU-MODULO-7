@@ -3,7 +3,6 @@ from .models.country import Country
 from .models.region import Region
 from .models.province import Province
 from .models.district import District
-from .models.address import Address
 
 
 @admin.register(Country)
@@ -46,31 +45,3 @@ class DistrictAdmin(admin.ModelAdmin):
     ordering = ('province__region__name', 'province__name', 'name')
     readonly_fields = ('created_at', 'updated_at')
     autocomplete_fields = ('province',)
-
-
-@admin.register(Address)
-class AddressAdmin(admin.ModelAdmin):
-    list_display = ('street', 'number', 'district', 'province', 'region', 'country', 'is_active', 'created_at')
-    list_filter = ('country', 'region', 'province', 'district', 'is_active', 'created_at', 'updated_at')
-    search_fields = ('street', 'number', 'apartment', 'reference', 'district__name', 'province__name', 'region__name')
-    ordering = ('country__name', 'region__name', 'province__name', 'district__name', 'street')
-    readonly_fields = ('created_at', 'updated_at')
-    autocomplete_fields = ('country', 'region', 'province', 'district')
-    list_editable = ('is_active',)
-    
-    fieldsets = (
-        ('Información de la Dirección', {
-            'fields': ('street', 'number', 'apartment', 'reference', 'postal_code')
-        }),
-        ('Ubicación Geográfica', {
-            'fields': ('country', 'region', 'province', 'district')
-        }),
-        ('Coordenadas', {
-            'fields': ('latitude', 'longitude'),
-            'classes': ('collapse',)
-        }),
-        ('Información del Sistema', {
-            'fields': ('is_active', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )

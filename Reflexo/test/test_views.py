@@ -6,7 +6,6 @@ from ..models.country import Country
 from ..models.region import Region
 from ..models.province import Province
 from ..models.district import District
-from ..models.address import Address
 
 
 class CountryViewsTest(TestCase):
@@ -246,111 +245,7 @@ class DistrictViewsTest(TestCase):
         self.assertEqual(len(data['data']), 1)
 
 
-class AddressViewsTest(TestCase):
-    """Tests para las vistas de Address"""
-    
-    def setUp(self):
-        self.client = Client()
-        self.country = Country.objects.create(
-            name='Perú',
-            ubigeo_code='PE'
-        )
-        self.region = Region.objects.create(
-            name='Lima',
-            ubigeo_code='15'
-        )
-        self.province = Province.objects.create(
-            name='Lima',
-            region=self.region,
-            ubigeo_code='1501'
-        )
-        self.district = District.objects.create(
-            name='Lima',
-            province=self.province,
-            ubigeo_code='150101'
-        )
-        self.address = Address.objects.create(
-            street='Av. Arequipa',
-            number='123',
-            country=self.country,
-            region=self.region,
-            province=self.province,
-            district=self.district
-        )
-    
-    def test_addresses_list_view(self):
-        """Test de vista de listado de direcciones"""
-        response = self.client.get('/api/v3/addresses/')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertTrue(data['success'])
-        self.assertEqual(len(data['data']), 1)
-    
-    def test_address_detail_view(self):
-        """Test de vista de detalle de dirección"""
-        response = self.client.get(f'/api/v3/addresses/{self.address.id}/')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertTrue(data['success'])
-        self.assertEqual(data['data']['street'], 'Av. Arequipa')
-    
-    def test_address_create_view(self):
-        """Test de vista de creación de dirección"""
-        data = {
-            'street': 'Av. Test',
-            'number': '456',
-            'country': self.country.id,
-            'region': self.region.id,
-            'province': self.province.id,
-            'district': self.district.id
-        }
-        response = self.client.post(
-            '/api/v3/addresses/create/',
-            data=json.dumps(data),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, 201)
-        response_data = json.loads(response.content)
-        self.assertTrue(response_data['success'])
-        self.assertEqual(response_data['data']['street'], 'Av. Test')
-    
-    def test_address_delete_view(self):
-        """Test de vista de eliminación de dirección (soft delete)"""
-        response = self.client.delete(f'/api/v3/addresses/{self.address.id}/delete/')
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content)
-        self.assertTrue(response_data['success'])
-        # La dirección debe seguir existiendo pero con is_active=False
-        address = Address.objects.get(id=self.address.id)
-        self.assertFalse(address.is_active)
-    
-    def test_address_restore_view(self):
-        """Test de vista de restauración de dirección"""
-        self.address.is_active = False
-        self.address.save()
-        response = self.client.post(f'/api/v3/addresses/{self.address.id}/restore/')
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content)
-        self.assertTrue(response_data['success'])
-        address = Address.objects.get(id=self.address.id)
-        self.assertTrue(address.is_active)
-    
-    def test_addresses_by_country_view(self):
-        """Test de vista de direcciones por país"""
-        response = self.client.get(f'/api/v3/countries/{self.country.id}/addresses/')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertTrue(data['success'])
-        self.assertEqual(len(data['data']), 1)
-    
-    def test_search_addresses_view(self):
-        """Test de vista de búsqueda de direcciones"""
-        response = self.client.get('/api/v3/addresses/search/?q=Arequipa')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertTrue(data['success'])
-        self.assertEqual(len(data['data']), 1)
-        self.assertEqual(data['query'], 'Arequipa')
+
 
 
 class WebViewsTest(TestCase):
